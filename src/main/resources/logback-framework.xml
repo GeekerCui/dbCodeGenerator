@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	<configuration debug="true" scan="true" scanPeriod="30 seconds">
+		<contextName>${HOSTNAME}</contextName>
+		<!-- 设置日志输出根目录 -->
+		<property name="log.dir" value="log"/>
+
+		<property name="encoding" value="UTF-8"/>
+		<property name="normal-pattern"
+				  value="%d{yyyy-MM-dd HH:mm:ss:SSS} %-5level - %logger [%thread] %C.%M:%L [%X{traceId}] - %msg%n"/>
+		<property name="plain-pattern" value="%d{yyyy-MM-dd.HH:mm:ss} %msg%n"/>
+
+		<!-- log file default -->
+		<appender name="main"
+				  class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<File>${log.dir}/main.log</File>
+			<prudent>false</prudent>
+			<Append>true</Append>
+			<encoder>
+				<pattern>${normal-pattern}</pattern>
+				<charset>${encoding}</charset>
+			</encoder>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${log.dir}/main.log.%d{yyyy-MM-dd-HH}
+				</fileNamePattern>
+				<maxHistory>8</maxHistory>
+			</rollingPolicy>
+		</appender>
+
+		<!-- log file error -->
+		<appender name="error"
+				  class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+				<level>ERROR</level>
+			</filter>
+			<prudent>false</prudent>
+			<Append>true</Append>
+			<encoder>
+				<pattern>${normal-pattern}</pattern>
+				<charset>${encoding}</charset>
+			</encoder>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${log.dir}/error.log.%d{yyyy-MM-dd-HH}
+				</fileNamePattern>
+				<maxHistory>8</maxHistory>
+			</rollingPolicy>
+		</appender>
+
+		<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+			<encoder>
+				<pattern>${normal-pattern}</pattern>
+			</encoder>
+		</appender>
+	<!-- log file default -->
+	<appender name="sql"
+			  class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${log.dir}/sql/sql.log</File>
+		<prudent>false</prudent>
+		<Append>true</Append>
+		<encoder>
+			<pattern>${normal-pattern}</pattern>
+			<charset>${encoding}</charset>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${log.dir}/sql/sql.log.%d{yyyy-MM-dd-HH}
+			</fileNamePattern>
+			<maxHistory>8</maxHistory>
+		</rollingPolicy>
+	</appender>
+
+	<appender name="sql-queue" class="ch.qos.logback.classic.AsyncAppender">
+		<queueSize>512</queueSize>
+		<appender-ref ref="sql"/>
+	</appender>
+
+		<logger name="org.springframework" level="info" additivity="false">
+			<appender-ref ref="main"/>
+			<appender-ref ref="console"/>
+		</logger>
+
+			<logger name="com.github.geekercui.generator.dao" level="DEBUG" additivity="false">
+				<appender-ref ref="sql-queue"/>
+				<appender-ref ref="main"/>
+				<appender-ref ref="console"/>
+			</logger>
+
+
+
+
+
+		<root level="info">
+			<appender-ref ref="console"/>
+			<appender-ref ref="main"/>
+			<appender-ref ref="error"/>
+		</root>
+</configuration>

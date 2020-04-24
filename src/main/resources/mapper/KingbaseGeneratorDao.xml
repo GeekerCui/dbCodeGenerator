@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.github.geekercui.generator.dao.KingbaseGeneratorDao">
+
+	<resultMap id="TableMap" type="com.github.geekercui.generator.entity.TableEntity" >
+		<result column="TABLENAME" property="name" jdbcType="VARCHAR" />
+		<result column="TABLECOMMENT" property="comment" jdbcType="VARCHAR" />
+		<result column="NUM_ROWS" property="rowNum" jdbcType="VARCHAR" />
+		<result column="CREATETIME" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<resultMap id="ColumnMap" type="com.github.geekercui.generator.entity.ColumnEntity" >
+		<result column="COLUMNNAME" property="name" jdbcType="VARCHAR" />
+		<result column="COLUMNCOMMENT" property="comment" jdbcType="VARCHAR" />
+		<result column="DATATYPE" property="type" jdbcType="VARCHAR" />
+		<result column="COLUMNKEY" property="key" jdbcType="VARCHAR" />
+		<result column="EXTRA" property="extra" jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<select id="queryList" resultMap="TableMap">
+		select
+			dt.table_name tableName,
+			dtc.comments tableComment,
+			dt.num_rows,
+			uo.created createTime
+		from user_tables dt,
+			user_tab_comments dtc,
+			user_objects uo
+		where dt.table_name = dtc.table_name
+			and dt.table_name = uo.object_name
+			and uo.object_type='TABLE'
+		<if test="tableName != null and tableName.trim() != ''">
+			and dt.table_name like concat('%', UPPER(#{tableName}))
+		</if>
+		order by uo.CREATED desc
+	</select>
+
+	<select id="queryTable" resultMap="TableMap">
+		select
+			dt.table_name tableName,
+			dtc.comments tableComment,
+			dt.last_analyzed createTime
+		from user_tables dt,user_tab_comments dtc
+		where dt.table_name=dtc.table_name
+			and dt.table_name = UPPER(#{tableName})
+	</select>
+
+	<select id="queryColumns" resultMap="ColumnMap">
+        select
+			temp.column_name columnname,
+			concat(temp.data_type,concat('(',concat(temp.data_length,')'))) dataType,
+			temp.comments columnComment,
+			case temp.constraint_type when 'P' then 'PRI' when 'C' then 'UNI' else '' end "COLUMNKEY",
+			'' "EXTRA"
+        from (
+			select
+				col.column_id,
+				col.column_name,
+				col.data_type,
+				col.data_length,
+				colc.comments,
+				uc.constraint_type,
+				-- 去重
+				row_number() over (partition by col.column_name order by uc.constraint_type desc) as row_flg
+			from user_tab_columns col
+			left join user_col_comments colc
+				on colc.table_name = col.table_name
+			 and colc.column_name = col.column_name
+			left join user_cons_columns ucc
+				 on ucc.table_name = col.table_name
+			 and ucc.column_name = col.column_name
+			left join user_constraints uc
+				 on uc.constraint_name = ucc.constraint_name
+			where
+			 col.table_name = upper(#{tableName})
+			) temp
+        where
+         	temp.row_flg = 1
+        order by temp.column_id
+	</select>
+
+</mapper>

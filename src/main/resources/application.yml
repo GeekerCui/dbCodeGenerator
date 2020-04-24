@@ -1,0 +1,59 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /generator
+
+
+logging:
+  config: classpath:logback-framework.xml
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    #MySQL配置
+#    driverClassName: com.mysql.jdbc.Driver
+ #   url: jdbc:mysql://172.1:3306/xx?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+  #  username: root
+  #  password:
+
+    #dm配置
+    driverClassName: dm.jdbc.driver.DmDriver
+    url: jdbc:dm://17:10003/
+    username: SYSDBA
+    password:
+
+    #oracle配置
+#    driverClassName: oracle.jdbc.OracleDriver
+#    url: jdbc:oracle:thin:@1:1521
+#    username:
+#    password:
+    #SQLServer配置
+#    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+#    url: jdbc:sqlserver://192..10:1433;DatabaseName=
+#    username: sa
+#    password:
+    #PostgreSQL配置
+#    driverClassName: org.postgresql.Driver
+#    url: jdbc:postgresql://192..10:5432/
+#    username: postgres
+#    password:
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+
+
+mybatis:
+  mapperLocations: classpath:mapper/*.xml
+
+
+pagehelper:
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+
+#指定数据库，可选值有【mysql、oracle、sqlserver、postgresql】
+mainconf:
+  database: dm
+  generator:
+    tablePrefix:  #指定过滤的表名
+    wordPath: /Users/BigC/Downloads/bigc-generator/src/main/resources/data.docx
