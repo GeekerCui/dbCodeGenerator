@@ -31,7 +31,7 @@
 		<velocity.version>1.7</velocity.version>
 		<druid.version>1.0.28</druid.version>
 		<!-- db version begin -->
-		<mysql.version>5.1.38</mysql.version>
+		<mysql.version>8.0.28</mysql.version>
 		<sqlserver.version>4.0</sqlserver.version>
 		<oracle.version>11.2.0.3</oracle.version>
 		<kingbase.version>8.2.0</kingbase.version>
